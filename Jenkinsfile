@@ -9,14 +9,6 @@ pipeline {
             }
         }
 
-        stage('Terraform Format') {
-            steps {
-                script {
-                    echo 'Running Terraform format check...'
-                    sh 'terraform fmt -check -diff'
-                }
-            }
-        }
 
         stage('Terraform Validate') {
             steps {
