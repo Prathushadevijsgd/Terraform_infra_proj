@@ -45,7 +45,6 @@ pipeline {
             }
         }
 
-
         stage('Terraform Apply') {
             steps {
                 input message: 'Approve Terraform Apply?', ok: 'Apply'  // Manual approval
@@ -59,39 +58,45 @@ pipeline {
                 }
             }
         }
-// stage('Terraform Destroy') {
-        //     steps {
-        //         input message: 'Approve Terraform Destroy?', ok: 'Destroy'  // Manual approval
-        //         script {
-        //             echo 'Destroying infrastructure...'
-        //             // Use withCredentials block to inject AWS credentials securely
-        //             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
-        //                 // AWS credentials are injected into the environment variables automatically
-        //                 sh 'terraform destroy -auto-approve'
-        //             }
-        //         }
-        //     }
-        // }
 
-         stage('Configure Infrastructure with Ansible') {
+        // Uncomment this stage if you want to include Terraform Destroy
+        /*
+        stage('Terraform Destroy') {
+            steps {
+                input message: 'Approve Terraform Destroy?', ok: 'Destroy'  // Manual approval
+                script {
+                    echo 'Destroying infrastructure...'
+                    // Use withCredentials block to inject AWS credentials securely
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+                        // AWS credentials are injected into the environment variables automatically
+                        sh 'terraform destroy -auto-approve'
+                    }
+                }
+            }
+        }
+        */
+
+        stage('Configure Infrastructure with Ansible') {
             steps {
                 script {
                     echo 'Configuring infrastructure with Ansible...'
                     withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'SSH_KEY')]) {
                         sh '''
-                            # Ensure SSH private key has the right permissions
-                            chmod 600 /var/lib/jenkins/.ssh/id_rsa
-                            
-                            # Create the .ssh directory if it doesn't exist
+                            # Ensure the .ssh directory exists and has the correct permissions
                             mkdir -p /var/lib/jenkins/.ssh
                             chmod 700 /var/lib/jenkins/.ssh
 
-                            # Automatically add the EC2 host to known_hosts for the Jenkins user
+                            # Add the EC2 host to known_hosts for the Jenkins user
                             ssh-keyscan -H 34.201.2.231 >> /var/lib/jenkins/.ssh/known_hosts
+                            chmod 600 /var/lib/jenkins/.ssh/known_hosts
+
+                            # Debugging: Verify the known_hosts file
+                            echo "Contents of known_hosts:"
+                            cat /var/lib/jenkins/.ssh/known_hosts
 
                             # Run Ansible playbooks with the private key
-                            ansible-playbook -i inventory.ini install_docker.yml --private-key /var/lib/jenkins/.ssh/id_rsa
-                            ansible-playbook -i inventory.ini install_jenkins.yml --private-key /var/lib/jenkins/.ssh/id_rsa
+                            ansible-playbook -i inventory.ini install_docker.yml --private-key $SSH_KEY -u ec2-user
+                            ansible-playbook -i inventory.ini install_jenkins.yml --private-key $SSH_KEY -u ec2-user
                         '''
                     }
                 }
