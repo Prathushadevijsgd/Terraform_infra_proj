@@ -77,7 +77,7 @@ pipeline {
             steps {
                 script {
                     echo 'Configuring infrastructure with Ansible...'
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+                    withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'SSH_KEY')]) {
                         sh '''
                             
                             ansible-playbook -i inventory.ini install_docker.yml
