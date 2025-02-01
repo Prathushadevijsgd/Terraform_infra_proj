@@ -59,20 +59,19 @@ pipeline {
                 }
             }
         }
-
-        stage('Terraform Destroy') {
-            steps {
-                input message: 'Approve Terraform Destroy?', ok: 'Destroy'  // Manual approval
-                script {
-                    echo 'Destroying infrastructure...'
-                    // Use withCredentials block to inject AWS credentials securely
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
-                        // AWS credentials are injected into the environment variables automatically
-                        sh 'terraform destroy -auto-approve'
-                    }
-                }
-            }
-        }
+// stage('Terraform Destroy') {
+        //     steps {
+        //         input message: 'Approve Terraform Destroy?', ok: 'Destroy'  // Manual approval
+        //         script {
+        //             echo 'Destroying infrastructure...'
+        //             // Use withCredentials block to inject AWS credentials securely
+        //             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+        //                 // AWS credentials are injected into the environment variables automatically
+        //                 sh 'terraform destroy -auto-approve'
+        //             }
+        //         }
+        //     }
+        // }
     }
 
     post {
