@@ -8,7 +8,15 @@ pipeline {
                 checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Prathushadevijsgd/Terraform_infra_proj']])
             }
         }
-
+        
+        stage('Terraform Init') {
+            steps {
+                script {
+                    echo 'Initializing Terraform modules...'
+                    sh 'terraform init'  // Initialize Terraform modules and backend
+                }
+            }
+        }
 
         stage('Terraform Validate') {
             steps {
