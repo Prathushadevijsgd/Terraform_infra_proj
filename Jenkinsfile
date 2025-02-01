@@ -13,7 +13,10 @@ pipeline {
             steps {
                 script {
                     echo 'Initializing Terraform modules...'
-                    sh 'terraform init'  // Initialize Terraform modules and backend
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+                        // AWS credentials are automatically injected into the environment
+                        sh 'terraform init'  // Initialize Terraform modules and backend
+                    }
                 }
             }
         }
@@ -22,7 +25,10 @@ pipeline {
             steps {
                 script {
                     echo 'Validating Terraform configuration...'
-                    sh 'terraform validate'
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+                        // Inject credentials again for validate stage
+                        sh 'terraform validate'
+                    }
                 }
             }
         }
@@ -31,11 +37,14 @@ pipeline {
             steps {
                 script {
                     echo 'Running Terraform plan...'
-                    sh 'terraform init'
-                    sh 'terraform plan -out=tfplan'
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+                        // Inject credentials again for plan stage
+                        sh 'terraform plan -out=tfplan'
+                    }
                 }
             }
         }
+
 
         stage('Terraform Apply') {
             steps {
