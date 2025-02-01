@@ -72,6 +72,20 @@ pipeline {
         //         }
         //     }
         // }
+
+        stage('Configure Infrastructure with Ansible') {
+            steps {
+                script {
+                    echo 'Configuring infrastructure with Ansible...'
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+                        sh '''
+                            ansible-playbook -i inventory.ini install_docker.yml
+                            ansible-playbook -i inventory.ini install_jenkins.yml
+                        '''
+                    }
+                }
+            }
+        }
     }
 
     post {
