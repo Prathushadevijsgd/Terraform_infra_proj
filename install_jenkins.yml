@@ -1,6 +1,6 @@
 ---
 - name: Install Jenkins on Amazon Linux
-  hosts: web_servers
+  hosts: all
   become: yes
   tasks:
     - name: Install Java (Jenkins dependency)
