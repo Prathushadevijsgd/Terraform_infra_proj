@@ -69,7 +69,7 @@ resource "aws_db_instance" "default" {
   publicly_accessible  = true
   vpc_security_group_ids = [aws_security_group.allow_all.id]
   tags = {
-    Name = "SpringPetClinicRDS"
+    Name = "SpringPetClinicRDSproj"
   }
 }
 
