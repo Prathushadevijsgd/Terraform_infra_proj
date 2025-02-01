@@ -1,6 +1,6 @@
 ---
 - name: Install Docker and Docker Compose on Amazon Linux
-  hosts: web_servers
+  hosts: all
   become: yes
   tasks:
     - name: Install Docker dependencies
