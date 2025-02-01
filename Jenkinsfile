@@ -73,16 +73,25 @@ pipeline {
         //     }
         // }
 
-        stage('Configure Infrastructure with Ansible') {
+         stage('Configure Infrastructure with Ansible') {
             steps {
                 script {
                     echo 'Configuring infrastructure with Ansible...'
                     withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'SSH_KEY')]) {
                         sh '''
+                            # Ensure SSH private key has the right permissions
                             chmod 600 /var/lib/jenkins/.ssh/id_rsa
-                            ssh-keyscan -H 34.201.2.231 >> ~/.ssh/known_hosts
-                            ansible-playbook -i inventory.ini install_docker.yml
-                            ansible-playbook -i inventory.ini install_jenkins.yml
+                            
+                            # Create the .ssh directory if it doesn't exist
+                            mkdir -p /var/lib/jenkins/.ssh
+                            chmod 700 /var/lib/jenkins/.ssh
+
+                            # Automatically add the EC2 host to known_hosts for the Jenkins user
+                            ssh-keyscan -H 34.201.2.231 >> /var/lib/jenkins/.ssh/known_hosts
+
+                            # Run Ansible playbooks with the private key
+                            ansible-playbook -i inventory.ini install_docker.yml --private-key /var/lib/jenkins/.ssh/id_rsa
+                            ansible-playbook -i inventory.ini install_jenkins.yml --private-key /var/lib/jenkins/.ssh/id_rsa
                         '''
                     }
                 }
