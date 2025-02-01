@@ -80,8 +80,15 @@ pipeline {
             steps {
                 script {
                     echo 'Configuring infrastructure with Ansible...'
+                    sh '''
+                        echo "SSH Key Path: $SSH_KEY"
+                        echo "Jenkins User: $(whoami)"
+                        echo "Environment Variables: $(env)"
+                    '''
+
                     withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'SSH_KEY')]) {
                         sh '''
+                            
                             # Ensure the .ssh directory exists and has the correct permissions
                             mkdir -p /var/lib/jenkins/.ssh
                             chmod 700 /var/lib/jenkins/.ssh
