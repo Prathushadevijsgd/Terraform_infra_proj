@@ -79,7 +79,7 @@ pipeline {
                     echo 'Configuring infrastructure with Ansible...'
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
                         sh '''
-                            ssh-keyscan -H 34.201.2.231 >> ~/.ssh/known_hosts
+                            
                             ansible-playbook -i inventory.ini install_docker.yml
                             ansible-playbook -i inventory.ini install_jenkins.yml
                         '''
